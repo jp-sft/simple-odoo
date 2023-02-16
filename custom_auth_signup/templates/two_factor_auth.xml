@@ -1,0 +1,39 @@
+<odoo>
+
+    <data>
+        <template id="two_factor_auth_mail_template">
+            <div class="container mt16">
+                <h2>Two-Factor Authentication</h2>
+                <p>Hi <strong><t t-esc="user.name"/>,</strong>
+                </p>
+                <p>Please enter the following token to complete your login:</p>
+                <p style="font-size: 24px; font-weight: bold;">
+                    <t t-esc="token"/>
+                </p>
+            </div>
+        </template>
+
+        <template id="two_factor_auth_form" name="Two-Factor Authentication Form">
+            <t t-if="error">
+                <div class="alert alert-danger">
+                    <t t-esc="error"/>
+                </div>
+            </t>
+            <form class="form-horizontal" method="post" action="/two_factor_auth/verify">
+                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label" for="token">2FA Token</label>
+                    <div class="col-sm-10">
+                        <input type="text" name="token" class="form-control"/>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-offset-2 col-sm-10">
+                        <button type="submit" class="btn btn-primary">Verify</button>
+                    </div>
+                </div>
+            </form>
+        </template>
+
+    </data>
+</odoo>
