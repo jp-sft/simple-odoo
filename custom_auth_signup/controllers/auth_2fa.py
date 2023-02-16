@@ -1,17 +1,14 @@
 import logging
 import odoo
-import ipdb
 import werkzeug
 
-from odoo import http
-from odoo.addons.web.controllers.main import Home,ensure_db,SIGN_UP_REQUEST_PARAMS
+from odoo import http, _
+from odoo.addons.web.controllers.main import Home, ensure_db, SIGN_UP_REQUEST_PARAMS
 from odoo.http import request
-from odoo.tools import plaintext2html, html_sanitize
 import random
 import string
 
 _logger = logging.getLogger(__name__)
-
 
 
 class TwoFactorAuthController(Home):
@@ -42,12 +39,14 @@ class TwoFactorAuthController(Home):
                     HTTP_HOST=wsgienv['HTTP_HOST'],
                     REMOTE_ADDR=wsgienv['REMOTE_ADDR'],
                 )
-                uid = odoo.registry(request.session.db)['res.users'].authenticate(request.session.db, request.params['login'], request.params['password'], env)
+                uid = odoo.registry(request.session.db)['res.users'].authenticate(request.session.db,
+                                                                                  request.params['login'],
+                                                                                  request.params['password'], env)
                 request.session["uid_2fa"] = uid
                 request.session["login"] = request.params['login']
                 request.session["password"] = request.params['password']
-                
-                if uid: 
+
+                if uid:
                     return werkzeug.utils.redirect('/two_factor_auth')
                 else:
                     raise odoo.exceptions.AccessDenied
@@ -75,12 +74,10 @@ class TwoFactorAuthController(Home):
         response.headers['X-Frame-Options'] = 'DENY'
         return response
 
-
-
     @http.route('/two_factor_auth', auth='none')
     def show_2fa_form(self, **kw):
         uid = request.session["uid_2fa"]
-        
+
         token = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
         auth_token = request.env['two.factor.auth'].sudo().create({
             'user_id': uid,
@@ -88,7 +85,7 @@ class TwoFactorAuthController(Home):
         })
         auth_token.sent_auth_code_mail()
 
-        return request.render('custom_auth_signup.two_factor_auth_form2')
+        return request.render('custom_auth_signup.two_factor_auth_form')
 
     @http.route('/two_factor_auth/verify', type='http', auth='none', website=True)
     def verify_2fa_token(self, **kw):
@@ -102,15 +99,15 @@ class TwoFactorAuthController(Home):
             ('token', '=', token),
         ])
 
-        # If the token is valid, redirect to the user's dashboard
+        # If the token is valid, authenticate and redirect to the user's dashboard
         if auth:
-            login = request.session['login'], 
+            login = request.session['login'],
             password = request.session['password']
             uid = request.session.authenticate(request.session.db, login, password)
             request.params['login_success'] = True
-            return request.redirect("/web")
+            return werkzeug.utils.redirect("/web")
         else:
             # If the token is invalid, display an error message
-            return request.render('custom_auth_signup.two_factor_auth_form2', {
+            return request.render('custom_auth_signup.two_factor_auth_form', {
                 'error': 'Invalid 2FA token',
             })

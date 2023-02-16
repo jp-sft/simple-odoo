@@ -1,9 +1,13 @@
 {
-    'name': 'Custom Auth Signup',
+    'name': 'Custom 2FA Auth Signup',
+    'summary': 'This Module implement two-factor authentication using a token sent by email.',
+    'description': "For more information, please see the documentation "
+                   "https://github.com/jp-sft/simple-odoo/blob/13.0/README.md",
     'version': '1.0',
-    'author': 'Jessy Pango',
+    'author': 'Simple Odoo',
     'category': 'Tools',
     'depends': ['auth_signup'],
-    'data': ["verification_email_template.xml"],
+    'data': ["templates/two_factor_auth.xml"],
     'installable': True,
+    'url': 'https://github.com/jp-sft/simple-odoo/blob/13.0/README.md',
 }
