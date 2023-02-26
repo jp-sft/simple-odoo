@@ -16,7 +16,6 @@ class TwoFactorAuth(models.Model):
             'user': self.user_id,
         }, engine="ir.qweb")
         smpt = self.env['ir.mail_server'].search([])[0]
-        print(smpt.smtp_user)
         self.env['mail.mail'].create({
             'subject': 'Your 2FA token',
             'body_html': rendered_template,

@@ -1,0 +1,44 @@
+<odoo>
+    <data>
+        <record id="view_hr_payslip_run_form_inherit" model="ir.ui.view">
+            <field name="name">hr.payslip.run.form.inherit</field>
+            <field name="model">hr.payslip.run</field>
+            <field name="inherit_id" ref="om_hr_payroll.hr_payslip_run_form"/>
+            <field name="arch" type="xml">
+                <button name="close_payslip_run" position="after">
+                    <button name="action_send_payslips" string="Envoyer Bulletins de Paie" icon="fa-envelope-o"
+                            type="object"
+                            attrs="{'invisible': [('send_email', '=', True)]}"/>
+                    <field name="send_email" invisible="1"/>
+                </button>
+            </field>
+        </record>
+
+        <record id="view_hr_payslip_by_employees" model="ir.ui.view">
+            <field name="name">hr_payroll_payslip_employees.inherit</field>
+            <field name="model">hr.payslip.employees</field>
+            <field name="inherit_id" ref="om_hr_payroll.view_hr_payslip_by_employees"/>
+            <field name="arch" type="xml">
+                <button name="compute_sheet" position="replace"></button>
+                <xpath expr="//group[1]" position="before">
+                    <header>
+                        <button name="select_all_employees" string="Sélectionner tous les employés" type="object"
+                                class="oe_highlight"/>
+                    </header>
+                </xpath>
+                <xpath expr="//group[last()]" position="before">
+                    <group string="Filtres et période de paie">
+                        <field name="date_start"/>
+                        <field name="date_end"/>
+                    </group>
+                </xpath>
+                <xpath expr="//group[last()]" position="after">
+                    <footer>
+                        <button icon="fa-cogs" string="Generate" name="compute_sheet" type="object"
+                                class="oe_highlight"/>
+                    </footer>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

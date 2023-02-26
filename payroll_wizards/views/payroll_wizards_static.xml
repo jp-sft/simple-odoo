@@ -1,0 +1,7 @@
+<odoo>
+    <template id="assets_backend" name="module_name assets" inherit_id="web.assets_backend">
+        <xpath expr="." position="inside">
+            <script type="text/javascript" src="/payroll_wizards/static/src/js/hr_payslip_run_tree.js"></script>
+        </xpath>
+    </template>
+</odoo>
