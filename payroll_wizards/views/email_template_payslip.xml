@@ -27,11 +27,11 @@
                     <p>Veuillez trouver ci-joint pour les employées :</p>
 
                     <p>Merci,</p>
-                    <p>${(object.env.user.signature and object.env.user.signature) or ''}</p>
                 ]]>
             </field>
-            <field name="report_name">Payslip-${len(objects)}-employees</field>
         </record>
     </data>
+<!--            <field name="report_name">Payslip-${len(objects)}-employees</field>-->
+
 </odoo>
 

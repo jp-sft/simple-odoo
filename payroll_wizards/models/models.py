@@ -30,11 +30,11 @@ class HrPayslipRun(models.Model):
         if not email_to:
             raise UserError("L'employé %s n'a pas d'adresse e-mail professionnelle." % employee.name)
 
-        name = payslip.number
+        name = f"Feuille de paie - {payslip.date_to.strftime('%B').capitalize()} - {employee.company_id.name} - {employee.name}"
         report_payslip_pdf = self.env.ref('om_hr_payroll.action_report_payslip').render_qweb_pdf([payslip.id])[0]
         pdf = base64.b64encode(report_payslip_pdf)
         attachment = self.env['ir.attachment'].create({
-            'name': _(f'Payslip {name}.pdf'),
+            'name': name + ".pdf",
             'res_model': 'hr.payslip',
             'type': 'binary',
             'datas': pdf,
@@ -45,7 +45,7 @@ class HrPayslipRun(models.Model):
         mail_template = self.env.ref('payroll_wizards.email_template_payslip')
         smpt = self.env['ir.mail_server'].search([])[0]
         mail_template.send_mail(payslip.id, force_send=True, email_values={
-            'subject': _(f'Payslip {name}'),
+            'subject': name,
             'email_to': email_to,
             'email_from': smpt.smtp_user,
             'auto_delete': True,
@@ -57,43 +57,43 @@ class HrPayslipRun(models.Model):
         for payslip in self.slip_ids:
             for employee in payslip.employee_id:
                 self._send_email(employee, payslip)
-        self._send_emails_admin()
         return
 
     def _send_emails_admin(self):
         """Envoyer un email au responsable avec tous les bulletins de paie"""
-        # payslip_report = self.env.ref('om_hr_payroll.action_report_payslip')
-        # for payslip in self.slip_ids:
-        #     employee = self.env.user
-        #     email_to = employee.email
-        #     if not email_to:
-        #         raise UserError("L'employé %s n'a pas d'adresse e-mail professionnelle." % employee.name)
-        #
-        #     name = payslip.number
-        #     report_payslip_pdf = self.env.ref('om_hr_payroll.action_report_payslip').render_qweb_pdf([payslip.id])[0]
-        #     pdf = base64.b64encode(report_payslip_pdf)
-        #     attachment = self.env['ir.attachment'].create({
-        #         'name': _(f'Payslip {name}.pdf'),
-        #         'res_model': 'hr.payslip',
-        #         'type': 'binary',
-        #         'datas': pdf,
-        #         'store_fname': pdf,
-        #         'mimetype': 'application/x-pdf',
-        #         'res_id': payslip.id,
-        #     })
-        #     mail_template = self.env.ref('payroll_wizards.email_template_payslip')
-        #     smpt = self.env['ir.mail_server'].search([])[0]
-        #     mail_template.send_mail(payslip.id, force_send=True, email_values={
-        #         'subject': _(f'Payslip {name}'),
-        #         'email_to': email_to,
-        #         'email_from': smpt.smtp_user,
-        #         'auto_delete': True,
-        #         'attachment_ids': [(4, attachment.id)],
-        #     })
-        pass
+        employee = self.env.user
+        email_to = employee.email
+        if not email_to:
+            raise UserError("L'employé %s n'a pas d'adresse e-mail professionnelle." % employee.name)
+        attachment_list = []
+        for payslip in self.slip_ids:
+            name = f"Feuille de paie - {payslip.date_to.strftime('%B').capitalize()} - {employee.company_id.name}"
+            report_payslip_pdf = self.env.ref('om_hr_payroll.action_report_payslip').render_qweb_pdf([payslip.id])[0]
+            pdf = base64.b64encode(report_payslip_pdf)
+            attachment = self.env['ir.attachment'].create({
+                'name': name + ".pdf",
+                'res_model': 'hr.payslip',
+                'type': 'binary',
+                'datas': pdf,
+                'store_fname': pdf,
+                'mimetype': 'application/x-pdf',
+                'res_id': payslip.id,
+            })
+            attachment_list.append(attachment)
+
+        mail_template = self.env.ref('payroll_wizards.email_template_payslip')
+        smpt = self.env['ir.mail_server'].search([])[0]
+        mail_template.send_mail(payslip.id, force_send=True, email_values={
+            'subject': name,
+            'email_to': email_to,
+            'email_from': smpt.smtp_user,
+            'auto_delete': True,
+            'attachment_ids': [(4, attachment.id) for attachment in attachment_list],
+        })
 
     def action_send_payslips(self):
         self._send_emails()
+        self._send_emails_admin2()
 
 
 class HrPayslipEmployees(models.TransientModel):
@@ -136,6 +136,7 @@ class HrPayslipEmployees(models.TransientModel):
     def select_all_employees(self):
         self.write({"employee_ids": self.env['hr.employee'].search([])})
         return {
+            'name': "Génération automatique des bulletins de paie",
             'type': 'ir.actions.act_window',
             'res_model': 'hr.payslip.employees',
             'res_id': self.id,
@@ -150,6 +151,7 @@ class HrPayslipEmployees(models.TransientModel):
         to_date = self.date_end
         credit_note = self.credit_note
         payslip_run_id = self.payslip_run_id
+
         if not data['employee_ids']:
             raise UserError(_("You must select employee(s) to generate payslip(s)."))
         for employee in self.env['hr.employee'].browse(data['employee_ids']):
@@ -170,6 +172,8 @@ class HrPayslipEmployees(models.TransientModel):
             }
             payslips += self.env['hr.payslip'].create(res)
         payslips.compute_sheet()
+        payslip_run_name = f"Bulletins de paye - Mois {from_date.strftime('%B').capitalize()} - {employee.company_id.name}"
+        payslip_run_id.write({"name": payslip_run_name})
         return {
             'type': 'ir.actions.act_window',
             'res_model': 'hr.payslip.run',

@@ -17,7 +17,7 @@ odoo.define('payroll_wizards.hr_payslip_run_tree', function (require) {
         },
         on_click_create_button: function () {
             var self = this;
-            var batch_vals = {'name': 'Lot ', 'state': 'draft'};
+            var batch_vals = {'name': 'Bulletins de paye - Mois <mois> - <société>', 'state': 'draft'};
             self._rpc({
                 model: 'hr.payslip.run',
                 method: 'create',
@@ -25,7 +25,7 @@ odoo.define('payroll_wizards.hr_payslip_run_tree', function (require) {
             }).then(function (result) {
                 self.do_action({
                     type: 'ir.actions.act_window',
-                    name: 'Generate Payslips',
+                    name: 'Génération automatique des bulletins de paie',
                     res_model: 'hr.payslip.employees',
                     views: [[false, 'form']],
                     target: 'new',

@@ -19,12 +19,23 @@
             <field name="model">hr.payslip.employees</field>
             <field name="inherit_id" ref="om_hr_payroll.view_hr_payslip_by_employees"/>
             <field name="arch" type="xml">
+                <xpath expr="//form[1]" position="attributes">
+                    <attribute name="string">Génération automatique des bulletins de paie</attribute>
+                </xpath>
+
                 <button name="compute_sheet" position="replace"></button>
+
                 <xpath expr="//group[1]" position="before">
                     <header>
-                        <button name="select_all_employees" string="Sélectionner tous les employés" type="object"
+                        <button name="select_all_employees" string="Sélectionner tous les employés"
+                                type="object"
                                 class="oe_highlight"/>
                     </header>
+                </xpath>
+                <xpath expr="//group/span" position="replace">
+                    <span colspan="4" nolabel="1">Vous pouvez générer automatiquement les fiches de paie de vos employés
+                        en utilisant cette fenêtre.
+                    </span>
                 </xpath>
                 <xpath expr="//group[last()]" position="before">
                     <group string="Filtres et période de paie">
@@ -32,9 +43,12 @@
                         <field name="date_end"/>
                     </group>
                 </xpath>
+                <xpath expr="//group/separator" position="replace">
+                    <separator string="Salariés" colspan="4"/>
+                </xpath>
                 <xpath expr="//group[last()]" position="after">
                     <footer>
-                        <button icon="fa-cogs" string="Generate" name="compute_sheet" type="object"
+                        <button icon="fa-cogs" string="Générer les fiches de paie" name="compute_sheet" type="object"
                                 class="oe_highlight"/>
                     </footer>
                 </xpath>
