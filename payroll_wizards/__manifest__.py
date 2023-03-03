@@ -18,7 +18,6 @@
     'data': [
         "views/views.xml",
         "views/payroll_wizards_static.xml",
-        "views/email_template_payslip.xml",
     ],
     'demo': [
     ],
