@@ -130,6 +130,8 @@ class HrPayslipRun(models.Model):
         slip_ids = slip_ids or self.slip_ids
         date = ''
         for payslip in slip_ids:
+            if not payslip:
+                continue
             for employee in payslip.employee_id:
                 vals = compute_email_value(payslip)
                 att = self._send_email(employee, payslip, vals, smpt, logo_base64)
