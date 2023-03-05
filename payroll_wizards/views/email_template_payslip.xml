@@ -1,0 +1,10 @@
+<!-- Email Template for Payslip -->
+<odoo>
+    <data>
+        <record id="email_template_payslip" model="mail.template">
+            <field name="name">Payslip Email</field>
+            <field name="model_id" ref="om_hr_payroll.model_hr_payslip"/>
+        </record>
+    </data>
+</odoo>
+

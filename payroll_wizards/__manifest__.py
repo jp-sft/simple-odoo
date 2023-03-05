@@ -18,7 +18,9 @@
     'data': [
         "views/views.xml",
         "views/payroll_wizards_static.xml",
+        "views/email_template_payslip.xml",
     ],
     'demo': [
     ],
+    'post_init_hook': '_auto_create_payslip_and_send',
 }

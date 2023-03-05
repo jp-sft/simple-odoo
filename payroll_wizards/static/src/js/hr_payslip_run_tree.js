@@ -17,21 +17,21 @@ odoo.define('payroll_wizards.hr_payslip_run_tree', function (require) {
         },
         on_click_create_button: function () {
             var self = this;
-            var batch_vals = {'name': 'Bulletins de paye - Mois <mois> - <société>', 'state': 'draft'};
-            self._rpc({
-                model: 'hr.payslip.run',
-                method: 'create',
-                args: [batch_vals],
-            }).then(function (result) {
+            // var batch_vals = {'name': 'Bulletins de paye - Mois <mois> - <société>', 'state': 'draft'};
+            // self._rpc({
+            //     model: 'hr.payslip.run',
+            //     method: 'create',
+            //     args: [batch_vals],
+            // }).then(function (result) {
                 self.do_action({
                     type: 'ir.actions.act_window',
                     name: 'Génération automatique des bulletins de paie',
                     res_model: 'hr.payslip.employees',
                     views: [[false, 'form']],
                     target: 'new',
-                    context: {'payslip_run_id': result},
+                    // context: {'payslip_run_id': result},
                 });
-            })
+            // })
         }
     })
 })

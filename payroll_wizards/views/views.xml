@@ -7,9 +7,7 @@
             <field name="arch" type="xml">
                 <button name="close_payslip_run" position="after">
                     <button name="action_send_payslips" string="Envoyer Bulletins de Paie" icon="fa-envelope-o"
-                            type="object"
-                            attrs="{'invisible': [('send_email', '=', True)]}"/>
-                    <field name="send_email" invisible="1"/>
+                            type="object"/>
                 </button>
             </field>
         </record>
@@ -23,7 +21,7 @@
                     <attribute name="string">Génération automatique des bulletins de paie</attribute>
                 </xpath>
 
-                <button name="compute_sheet" position="replace"></button>
+                <button name="compute_sheet" position="replace"/>
 
                 <xpath expr="//group[1]" position="before">
                     <header>
