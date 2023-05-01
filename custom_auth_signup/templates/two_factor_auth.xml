@@ -3,14 +3,29 @@
     <data>
         <template id="two_factor_auth_mail_template">
             <div class="container mt16">
-                <h2>Two-Factor Authentication</h2>
-                <p>Hi
+                <h2>Code sécurité - SMARTPAY APP</h2>
+                <p>Bonjour
                     <strong><t t-esc="user.name"/>,
                     </strong>
                 </p>
-                <p>Please enter the following token to complete your login:</p>
-                <p style="font-size: 24px; font-weight: bold;">
-                    <t t-esc="token"/>
+                <p>Nous avons reçu une demande de connexion à votre espace SMARTPAY APP :</p>
+                <strong>Utilisateur:</strong> <t t-esc="user.name"/><br/>
+                <strong>Mail: </strong><t t-esc="user.login"/><br/>
+               <strong> Date :</strong> <t t-esc="datetime.datetime.now().strftime('%Y-%m-%d')"/><br/>
+                <strong>Heure :</strong> <t t-esc="datetime.datetime.now().strftime('%H:%M:%S')"/><br/>
+                <strong>IP :</strong><t t-esc="ip"/><br/>
+                <p>Nous vous invitons à confirmer votre accès par le code ci-dessous:
+                </p>
+                <p><strong>Code sécurité :</strong>  <strong> <t t-esc="token"/></strong></p>
+                 
+                <p>Si vous n'êtes pas à l'origine de cette demande, merci de procéder à changer votre mot de passe ou à créer une ticket de
+                    support à notre équipe via ce lien : https://www.smart-pay-app.com/mes-tickets/<br/>
+
+                    <br/><br/>
+
+                    Cordialement <br/><br/>
+                    Equipe SMARTPAY APP <br/><br/>
+                    https://www.smart-pay-app.com/
                 </p>
             </div>
         </template>
@@ -18,7 +33,7 @@
 
         <template id="two_factor_auth_form" name="Two-Factor Authentication Form">
             <t t-call="web.login_layout">
-                <a class="mb-2" href="/web/login">Back To Login Page</a>
+
                 <form class="form-horizontal" method="post" action="/two_factor_auth/verify">
                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                     <t t-if="error">
@@ -27,17 +42,20 @@
                         </div>
                     </t>
                     <div class="form-group">
-                        <label class="col control-label" for="token">Token</label>
+                        <label class="col control-label" for="token">Code sécutité</label>
                         <div class="col-sm-10">
                             <input type="text" name="token" class="form-control"/>
                         </div>
                     </div>
                     <div class="form-group">
                         <div class="col-sm-offset-2 col-sm-10">
-                            <button type="submit" class="btn btn-primary">Verify</button>
+                            <button type="submit" class="btn btn-primary btn-block" style="background-color: #07a74c !important;">vérifier</button>
                         </div>
                     </div>
                 </form>
+                <div class="justify-content-between mt-2 d-flex small">
+                    <a href="/web/login">Aller à la page d'accueil</a>
+                </div>
             </t>
         </template>
 
