@@ -2,6 +2,7 @@ import logging
 import odoo
 import werkzeug
 
+from odoo import exceptions
 from odoo import http, _
 from odoo.addons.web.controllers.main import Home, ensure_db, SIGN_UP_REQUEST_PARAMS
 from odoo.http import request
@@ -39,14 +40,22 @@ class TwoFactorAuthController(Home):
                     HTTP_HOST=wsgienv['HTTP_HOST'],
                     REMOTE_ADDR=wsgienv['REMOTE_ADDR'],
                 )
-                uid = odoo.registry(request.session.db)['res.users'].authenticate(request.session.db,
-                                                                                  request.params['login'],
-                                                                                  request.params['password'], env)
-                request.session["uid_2fa"] = uid
-                request.session["login"] = request.params['login']
-                request.session["password"] = request.params['password']
+                request.session['check_token'] = False
+                try:
+                    uid = odoo.registry(request.session.db)['res.users'].authenticate(request.session.db,
+                                                                                      request.params['login'],
+                                                                                      request.params['password'], env)
+                except exceptions.AccessDenied as e:
+                    if not hasattr(request, 'token_send') or not request.token_send:
+                        raise e
 
-                if uid:
+                if request.uid_2fa:
+                    # uid = request.session["uid"]
+                    # del request.session["uid"]
+                    request.session["uid_2fa"] = request.uid
+                    request.session["login"] = request.params['login']
+                    request.session["password"] = request.params['password']
+                    # request.session["uid"] = request.uid
                     return werkzeug.utils.redirect('/two_factor_auth')
                 else:
                     raise odoo.exceptions.AccessDenied
@@ -76,37 +85,25 @@ class TwoFactorAuthController(Home):
 
     @http.route('/two_factor_auth', auth='none')
     def show_2fa_form(self, **kw):
-        uid = request.session["uid_2fa"]
-
-        token = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
-        auth_token = request.env['two.factor.auth'].sudo().create({
-            'user_id': uid,
-            'token': token,
-        })
-        auth_token.sent_auth_code_mail()
-
+        uid = request.session.get("uid_2fa", None)
+        if not uid:
+            return werkzeug.utils.redirect('/web/login')
+        # request.env['res.users'].sudo().search([('id', '=', uid)], limit=1).generate_token_and_send()
         return request.render('custom_auth_signup.two_factor_auth_form')
 
     @http.route('/two_factor_auth/verify', type='http', auth='none', website=True)
     def verify_2fa_token(self, **kw):
-        uid = request.session["uid_2fa"]
         # Get the submitted token from the form
-        token = kw.get('token')
-
-        # Lookup the token in the database
-        auth = request.env['two.factor.auth'].sudo().search([
-            ('user_id', '=', uid),
-            ('token', '=', token),
-        ])
-
+        request.session['token'] = kw.get('token')
+        request.session['check_token'] = True
         # If the token is valid, authenticate and redirect to the user's dashboard
-        if auth:
-            login = request.session['login'],
-            password = request.session['password']
+        login = request.session['login'],
+        password = request.session['password']
+        try:
             uid = request.session.authenticate(request.session.db, login, password)
             request.params['login_success'] = True
             return werkzeug.utils.redirect("/web")
-        else:
+        except exceptions.AccessDenied as e:
             # If the token is invalid, display an error message
             return request.render('custom_auth_signup.two_factor_auth_form', {
                 'error': 'Invalid 2FA token',

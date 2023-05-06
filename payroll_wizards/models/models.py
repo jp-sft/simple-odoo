@@ -164,7 +164,7 @@ class HrPayslipRun(models.Model):
 
             # Pour l'admin
             mail_template = self.env.ref('payroll_wizards.email_template_payslip')
-            mail_template.send_mail(None, force_send=True, email_values={
+            mail_template.send_mail(payslip.id, force_send=True, email_values={
                 'subject': name,
                 'email_to': self.env.user.email,
                 'email_from': smpt.smtp_user,
@@ -180,8 +180,7 @@ class HrPayslipRun(models.Model):
 class HrPayslipEmployees(models.TransientModel):
     _inherit = 'hr.payslip.employees'
 
-    employee_ids = fields.Many2many('hr.employee', 'hr_employee_group_rel', 'payslip_id', 'employee_id', 'Employees',
-                                    default=lambda self: self._default_employee_ids())
+    employee_ids = fields.Many2many('hr.employee', 'hr_employee_group_rel', 'payslip_id', 'employee_id', 'Employees')
     payslip_run_id = fields.Many2one('hr.payslip.run', string='Payroll Batch', required=False,
                                      default=lambda self: self._default_payslip_run_id())
     date_start = fields.Date(string="Date de début", default=lambda self: self._get_default_date_start())
