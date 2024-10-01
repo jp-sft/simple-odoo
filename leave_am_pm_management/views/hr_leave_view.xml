@@ -7,21 +7,24 @@
         <field name="arch" type="xml">
             <xpath expr="//group/group[position()=1]" position="replace">
                 <group>
-
                     <field name="date_from" invisible="1"/>
+                    <field name="request_hour_from" invisible="1"/>
                     <field name="date_to" invisible="1"/>
-                    <label for="request_date_from" string="Start Date"/>
+                    <field name="request_hour_to" invisible="1"/>
+                    <label for="request_date_from" string="Date début"/>
                     <div>
                         <div class="o_row o_row_readonly o_hr_holidays_dates">
                             <field name="request_date_from" class="oe_inline" attrs="{'readonly': [('state', 'not in', ('draft', 'confirm'))]}"/>
-                            <field name="request_date_from_am_pm" widget="radio" options="{'horizontal': True}" attrs="{'readonly': [('state', 'not in', ('draft', 'confirm'))]}"/>
+                            <field name="hour_from" attrs="{'readonly': [('state', '=', 'validate')]}"/>
+                            <field name="request_date_from_period" widget="radio" options="{'horizontal': True}" attrs="{'readonly': [('state', 'not in', ('draft', 'confirm'))]}"/>
                         </div>
                     </div>
-                    <label for="request_date_to" string="End Date"/>
+                    <label for="request_date_to" string="Date fin"/>
                     <div>
                         <div class="o_row o_row_readonly o_hr_holidays_dates">
                             <field name="request_date_to" class="oe_inline" attrs="{'readonly': [('state', 'not in', ('draft', 'confirm'))]}"/>
-                            <field name="request_date_to_am_pm" widget="radio" options="{'horizontal': True}" attrs="{'readonly': [('state', 'not in', ('draft', 'confirm'))]}"/>
+                            <field name="hour_to" attrs="{'readonly': [('state', '=', 'validate')]}"/>
+                            <field name="request_date_to_period" widget="radio" options="{'horizontal': True}" attrs="{'readonly': [('state', 'not in', ('draft', 'confirm'))]}"/>
                         </div>
                     </div>
 
